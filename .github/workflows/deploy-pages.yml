@@ -2,6 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - claude/basics-star-tracking-frontend-lxv7ri
 
 permissions:
   contents: read
