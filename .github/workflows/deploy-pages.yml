@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - claude/basics-star-tracking-frontend-lxv7ri
 
 permissions:
