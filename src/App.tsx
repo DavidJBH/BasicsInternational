@@ -6,12 +6,10 @@ import { TodayEntry } from './views/TodayEntry';
 import { WeekSummary } from './views/WeekSummary';
 import { Students } from './views/Students';
 
-const SEED_STUDENTS: Student[] = [
-  { id: 'lydia-otoo', name: 'Lydia Otoo' },
-  { id: 'naomi-adei', name: 'Naomi Adei' },
-  { id: 'phoebe-lankai', name: 'Phoebe Lankai' },
-  { id: 'rebecca-ntri', name: 'Rebecca Ntri' },
-];
+const SEED_STUDENTS: Student[] = Array.from({ length: 10 }, (_, i) => ({
+  id: `student-${i + 1}`,
+  name: `Student ${i + 1}`,
+}));
 
 type Tab = 'today' | 'week' | 'students';
 
