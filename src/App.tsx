@@ -49,7 +49,14 @@ function App() {
             setWeekStartIso={setWeekStartIso}
           />
         )}
-        {tab === 'students' && <Students students={students} setStudents={setStudents} />}
+        {tab === 'students' && (
+          <Students
+            students={students}
+            setStudents={setStudents}
+            daily={daily}
+            weeklyExtras={weeklyExtras}
+          />
+        )}
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex z-30">

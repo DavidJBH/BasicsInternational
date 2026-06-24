@@ -6,16 +6,34 @@ export type Category =
   | 'washroom'
   | 'food';
 
-export const CATEGORIES: { key: Category; label: string }[] = [
-  { key: 'attendance', label: 'Attendance' },
-  { key: 'punctuality', label: 'Punctuality' },
-  { key: 'neatness', label: 'Neatness' },
-  { key: 'conduct', label: 'Conduct' },
-  { key: 'washroom', label: 'Washroom' },
-  { key: 'food', label: 'Food' },
+export type CategoryMode = 'attendance' | 'earn' | 'spend';
+
+export const CATEGORIES: { key: Category; label: string; mode: CategoryMode }[] = [
+  { key: 'attendance', label: 'Attendance', mode: 'attendance' },
+  { key: 'punctuality', label: 'Punctuality', mode: 'earn' },
+  { key: 'neatness', label: 'Neatness', mode: 'earn' },
+  { key: 'conduct', label: 'Conduct', mode: 'earn' },
+  { key: 'washroom', label: 'Washroom', mode: 'spend' },
+  { key: 'food', label: 'Food', mode: 'spend' },
 ];
 
 export type Score = -1 | 0 | 1;
+
+export const SCORE_OPTIONS: Record<CategoryMode, { value: Score; label: string }[]> = {
+  attendance: [
+    { value: 0, label: 'Absent' },
+    { value: 1, label: 'Present' },
+  ],
+  earn: [
+    { value: -1, label: '−1' },
+    { value: 0, label: '0' },
+    { value: 1, label: '+1' },
+  ],
+  spend: [
+    { value: 0, label: 'No' },
+    { value: -1, label: 'Spent' },
+  ],
+};
 
 export interface Student {
   id: string;

@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import type { Student } from '../types';
+import type { DailyScores, Student, WeeklyExtras } from '../types';
+import { balanceAsOf } from '../lib/scoring';
+import { weekStart } from '../lib/dates';
+
+const currentWeek = weekStart(new Date());
 
 export function Students({
   students,
   setStudents,
+  daily,
+  weeklyExtras,
 }: {
   students: Student[];
   setStudents: (next: Student[]) => void;
+  daily: DailyScores;
+  weeklyExtras: WeeklyExtras;
 }) {
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -59,35 +67,49 @@ export function Students({
       </div>
 
       <div className="space-y-2">
-        {students.map((student) => (
-          <div
-            key={student.id}
-            className="flex items-center justify-between border border-gray-200 rounded-lg px-3 py-2"
-          >
-            {editingId === student.id ? (
-              <input
-                type="text"
-                value={editingName}
-                autoFocus
-                onChange={(e) => setEditingName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
-                onBlur={saveEdit}
-                className="flex-1 border border-gray-300 rounded px-2 py-1 mr-2"
-              />
-            ) : (
-              <span className="text-gray-900" onClick={() => startEdit(student)}>
-                {student.name}
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={() => removeStudent(student.id)}
-              className="text-red-500 text-sm font-medium px-2 py-1 active:scale-95"
+        {students.map((student) => {
+          const balance = balanceAsOf(daily, weeklyExtras, student.id, currentWeek);
+          return (
+            <div
+              key={student.id}
+              className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5"
             >
-              Remove
-            </button>
-          </div>
-        ))}
+              {editingId === student.id ? (
+                <input
+                  type="text"
+                  value={editingName}
+                  autoFocus
+                  onChange={(e) => setEditingName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+                  onBlur={saveEdit}
+                  className="flex-1 border border-gray-300 rounded px-2 py-1 mr-1"
+                />
+              ) : (
+                <span className="flex-1 text-gray-900" onClick={() => startEdit(student)}>
+                  {student.name}
+                </span>
+              )}
+              <span
+                className={`text-sm font-semibold tabular-nums px-2 py-0.5 rounded-full ${
+                  balance > 0
+                    ? 'bg-green-100 text-green-700'
+                    : balance < 0
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-gray-100 text-gray-500'
+                }`}
+              >
+                {balance > 0 ? '+' : ''}{balance} ★
+              </span>
+              <button
+                type="button"
+                onClick={() => removeStudent(student.id)}
+                className="text-red-500 text-sm font-medium px-2 py-1 active:scale-95"
+              >
+                Remove
+              </button>
+            </div>
+          );
+        })}
         {students.length === 0 && (
           <p className="text-gray-500 text-center mt-8">No students yet — add one above.</p>
         )}

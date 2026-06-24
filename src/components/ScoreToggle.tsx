@@ -1,11 +1,5 @@
 import type { Score } from '../types';
 
-const OPTIONS: { value: Score; label: string }[] = [
-  { value: -1, label: '−1' },
-  { value: 0, label: '0' },
-  { value: 1, label: '+1' },
-];
-
 const ACTIVE_CLASSES: Record<Score, string> = {
   [-1]: 'bg-red-500 text-white',
   0: 'bg-gray-400 text-white',
@@ -15,13 +9,19 @@ const ACTIVE_CLASSES: Record<Score, string> = {
 export function ScoreToggle({
   value,
   onChange,
+  options,
+  disabled = false,
+  className = '',
 }: {
   value: Score;
   onChange: (value: Score) => void;
+  options: { value: Score; label: string }[];
+  disabled?: boolean;
+  className?: string;
 }) {
   return (
-    <div className="flex gap-1.5">
-      {OPTIONS.map((opt) => (
+    <div className={`flex gap-1.5 ${disabled ? 'opacity-30 pointer-events-none' : ''} ${className}`.trim()}>
+      {options.map((opt) => (
         <button
           key={opt.value}
           type="button"

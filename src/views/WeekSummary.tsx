@@ -46,7 +46,7 @@ export function WeekSummary({
 
       {students.length === 0 && (
         <p className="text-gray-500 text-center mt-12">
-          No students yet — add some in the Students tab.
+          No students yet. Add some in the Students tab.
         </p>
       )}
 
