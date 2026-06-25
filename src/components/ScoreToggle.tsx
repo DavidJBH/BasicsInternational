@@ -3,7 +3,7 @@ import type { Score } from '../types';
 const ACTIVE_CLASSES: Record<Score, string> = {
   [-1]: 'bg-red-500 text-white',
   0: 'bg-gray-400 text-white',
-  1: 'bg-green-500 text-white',
+  1: 'bg-brand-500 text-white',
 };
 
 export function ScoreToggle({

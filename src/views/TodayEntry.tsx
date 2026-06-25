@@ -48,14 +48,14 @@ function AttendanceSummary({
               cy={size / 2}
               r={r}
               fill="none"
-              stroke="#22c55e"
+              stroke="#78c200"
               strokeWidth={strokeWidth}
               strokeDasharray={`${presentDash} ${circumference}`}
             />
           )}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-xl font-bold leading-none text-green-700">{present}</span>
+          <span className="text-xl font-bold leading-none text-brand-700">{present}</span>
           <span className="text-[10px] text-gray-400 leading-tight">of {total}</span>
         </div>
       </div>
@@ -65,7 +65,7 @@ function AttendanceSummary({
         <p className="text-sm font-semibold text-gray-700 mb-2">Daily Attendance</p>
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-green-500 shrink-0" />
+            <span className="w-2.5 h-2.5 rounded-full bg-brand-500 shrink-0" />
             <span className="text-sm text-gray-600 flex-1">Present</span>
             <span className="text-sm font-semibold text-gray-900">{present}/{total}</span>
           </div>

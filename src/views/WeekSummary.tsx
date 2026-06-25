@@ -76,7 +76,7 @@ export function WeekSummary({
                 const extra = getWeeklyExtra(weeklyExtras, student.id, weekStartIso);
                 const wt = weekTotal(daily, student.id, weekStartIso);
                 const earned = totalEarned(wt, extra);
-                const balance = balanceAsOf(daily, weeklyExtras, student.id, weekStartIso);
+                const balance = balanceAsOf(daily, weeklyExtras, student.id, weekStartIso) + (student.openingBalance ?? 0);
 
                 return (
                   <tr key={student.id} className="border-b border-gray-100">
@@ -132,7 +132,7 @@ export function WeekSummary({
                         className="w-16 border border-gray-200 rounded px-1.5 py-1 text-center"
                       />
                     </td>
-                    <td className="px-3 py-2 text-center font-bold text-green-700">{balance}</td>
+                    <td className="px-3 py-2 text-center font-bold text-brand-700">{balance}</td>
                   </tr>
                 );
               })}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Star } from 'lucide-react';
 import type { DailyScores, Student, WeeklyExtras } from '../types';
 import { balanceAsOf } from '../lib/scoring';
 import { weekStart } from '../lib/dates';
@@ -17,14 +18,17 @@ export function Students({
   weeklyExtras: WeeklyExtras;
 }) {
   const [newName, setNewName] = useState('');
+  const [newBalance, setNewBalance] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
 
   function addStudent() {
     const name = newName.trim();
     if (!name) return;
-    setStudents([...students, { id: crypto.randomUUID(), name }]);
+    const openingBalance = newBalance !== '' ? Number(newBalance) : undefined;
+    setStudents([...students, { id: crypto.randomUUID(), name, openingBalance }]);
     setNewName('');
+    setNewBalance('');
   }
 
   function removeStudent(id: string) {
@@ -48,27 +52,36 @@ export function Students({
     <div className="px-4 pt-4 pb-24 max-w-lg mx-auto">
       <h2 className="text-lg font-semibold text-gray-900 mb-3">Students</h2>
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-col gap-2 mb-4">
         <input
           type="text"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && addStudent()}
-          placeholder="Add student name"
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-base"
+          placeholder="Student name"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-base"
         />
-        <button
-          type="button"
-          onClick={addStudent}
-          className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold active:scale-95"
-        >
-          Add
-        </button>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            value={newBalance}
+            onChange={(e) => setNewBalance(e.target.value)}
+            placeholder="Opening balance (optional)"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-base"
+          />
+          <button
+            type="button"
+            onClick={addStudent}
+            className="px-4 py-2 rounded-lg bg-brand-600 text-white font-semibold active:scale-95 shrink-0"
+          >
+            Add
+          </button>
+        </div>
       </div>
 
       <div className="space-y-2">
         {students.map((student) => {
-          const balance = balanceAsOf(daily, weeklyExtras, student.id, currentWeek);
+          const balance = balanceAsOf(daily, weeklyExtras, student.id, currentWeek) + (student.openingBalance ?? 0);
           return (
             <div
               key={student.id}
@@ -92,13 +105,13 @@ export function Students({
               <span
                 className={`text-sm font-semibold tabular-nums px-2 py-0.5 rounded-full ${
                   balance > 0
-                    ? 'bg-green-100 text-green-700'
+                    ? 'bg-brand-100 text-brand-700'
                     : balance < 0
                       ? 'bg-red-100 text-red-700'
                       : 'bg-gray-100 text-gray-500'
                 }`}
               >
-                {balance > 0 ? '+' : ''}{balance} ★
+                {balance > 0 ? '+' : ''}{balance} <Star size={12} className="inline-block mb-0.5" />
               </span>
               <button
                 type="button"
