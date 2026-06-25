@@ -21,6 +21,12 @@ export function Students({
   const [newBalance, setNewBalance] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  function resetAllData() {
+    localStorage.clear();
+    window.location.reload();
+  }
 
   function addStudent() {
     const name = newName.trim();
@@ -125,6 +131,38 @@ export function Students({
         })}
         {students.length === 0 && (
           <p className="text-gray-500 text-center mt-8">No students yet — add one above.</p>
+        )}
+      </div>
+
+      <div className="mt-10 pt-6 border-t border-gray-200">
+        {confirmReset ? (
+          <div className="text-center space-y-3">
+            <p className="text-sm font-medium text-red-600">This will erase all students and scores. Are you sure?</p>
+            <div className="flex gap-2 justify-center">
+              <button
+                type="button"
+                onClick={() => setConfirmReset(false)}
+                className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 font-medium active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={resetAllData}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white font-semibold active:scale-95"
+              >
+                Yes, reset everything
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirmReset(true)}
+            className="w-full py-2 rounded-lg border border-red-300 text-red-500 text-sm font-medium active:scale-95"
+          >
+            Reset all data
+          </button>
         )}
       </div>
     </div>
