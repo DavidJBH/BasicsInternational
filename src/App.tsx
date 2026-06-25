@@ -9,9 +9,9 @@ import { WeekSummary } from './views/WeekSummary';
 import { Students } from './views/Students';
 
 const SEED_NAMES = [
-  'Kwame Mensah', 'Abena Asante', 'Kofi Boateng', 'Akua Owusu', 'Yaw Osei',
-  'Adjoa Frimpong', 'Kwabena Antwi', 'Akosua Nyarko', 'Kojo Darko', 'Adwoa Amponsah',
-  'Kwesi Acheampong', 'Ama Amoah', 'Kweku Tetteh', 'Abena Asare', 'Kofi Appiah',
+  'Nii Ankrah', 'Akweley Quaye', 'Tawiah Sowah', 'Adzoa Kotey', 'Nartey Laryea',
+  'Dedei Tagoe', 'Okoe Martey', 'Korkor Nortey', 'Tetteh Lamptey', 'Ayorkor Narh',
+  'Boye Amartey', 'Adoley Aryee', 'Ofoe Nettey', 'Mansa Afotey', 'Naa Djanie',
 ];
 
 const SEED_STUDENTS: Student[] = SEED_NAMES.map((name, i) => ({
