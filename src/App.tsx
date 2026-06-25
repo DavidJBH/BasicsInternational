@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Sun, CalendarDays, Users, type LucideIcon } from 'lucide-react';
+import logoUrl from './assets/logo.png';
 import type { DailyScores, Student, WeeklyExtras } from './types';
 import { useLocalStorageState } from './lib/storage';
 import { toIsoDate, weekStart } from './lib/dates';
@@ -37,8 +38,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <header className="border-b border-gray-200 px-4 py-3 bg-white sticky top-0 z-20 flex items-center gap-3">
-        <img src="/logo.jpeg" alt="BASICS International" className="h-10 w-10 rounded-lg object-cover shrink-0" />
+      <header className="border-b border-gray-200 px-5 py-3 bg-white sticky top-0 z-20 flex items-center gap-3" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
+        <img src={logoUrl} alt="BASICS International" className="h-10 w-10 rounded-lg object-cover shrink-0" />
         <div>
           <h1 className="text-base font-bold text-gray-900">STAR System</h1>
           <p className="text-xs text-gray-500">BASICS International</p>
@@ -69,7 +70,7 @@ function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex z-30">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex z-30" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {TABS.map((t) => (
           <button
             key={t.key}
