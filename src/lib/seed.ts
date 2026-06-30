@@ -1,5 +1,5 @@
 import type { Student, DailyScores, WeeklyExtras, Score } from '../types';
-import { toIsoDate, fromIsoDate, weekStart, weekdayDates, addWeeks } from './dates';
+import { toIsoDate, fromIsoDate, weekStart } from './dates';
 
 const SEED_KEY = 'star.seeded';
 const SEED_VERSION = 'v1';
