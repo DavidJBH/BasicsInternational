@@ -18,3 +18,15 @@ body {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
+
+.print-only { display: none; }
+
+@media print {
+  header, nav, .no-print { display: none !important; }
+  body { padding: 0 !important; }
+  .overflow-x-auto { overflow: visible !important; }
+  table { width: 100% !important; font-size: 11px; }
+  th.sticky, td.sticky { position: static !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-only { display: block !important; }
+}

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Star } from 'lucide-react';
 import type { DailyScores, Student, WeeklyExtras } from '../types';
+import type { ClassYear } from '../auth/types';
 import { balanceAsOf } from '../lib/scoring';
 import { weekStart } from '../lib/dates';
+import { seedDemoData } from '../lib/seed';
 
 const currentWeek = weekStart(new Date());
 
@@ -11,11 +13,13 @@ export function Students({
   setStudents,
   daily,
   weeklyExtras,
+  classYear,
 }: {
   students: Student[];
   setStudents: (next: Student[]) => void;
   daily: DailyScores;
   weeklyExtras: WeeklyExtras;
+  classYear: ClassYear;
 }) {
   const [newName, setNewName] = useState('');
   const [newBalance, setNewBalance] = useState('');
@@ -24,7 +28,16 @@ export function Students({
   const [confirmReset, setConfirmReset] = useState(false);
 
   function resetAllData() {
-    localStorage.clear();
+    localStorage.removeItem('star.students');
+    localStorage.removeItem('star.daily');
+    localStorage.removeItem('star.weeklyExtras');
+    localStorage.removeItem('star.seeded');
+    window.location.reload();
+  }
+
+  function loadDemoData() {
+    localStorage.removeItem('star.seeded');
+    seedDemoData();
     window.location.reload();
   }
 
@@ -32,7 +45,7 @@ export function Students({
     const name = newName.trim();
     if (!name) return;
     const openingBalance = newBalance !== '' ? Number(newBalance) : undefined;
-    setStudents([...students, { id: crypto.randomUUID(), name, openingBalance }]);
+    setStudents([...students, { id: crypto.randomUUID(), name, classYear, openingBalance }]);
     setNewName('');
     setNewBalance('');
   }
@@ -56,7 +69,7 @@ export function Students({
 
   return (
     <div className="px-4 pt-4 pb-24 max-w-lg mx-auto">
-      <h2 className="text-lg font-semibold text-gray-900 mb-3">Students</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-3">Class {classYear} Students</h2>
 
       <div className="flex flex-col gap-2 mb-4">
         <input
@@ -134,7 +147,15 @@ export function Students({
         )}
       </div>
 
-      <div className="mt-10 pt-6 border-t border-gray-200">
+      <div className="mt-10 pt-6 border-t border-gray-200 flex flex-col gap-3">
+        <button
+          type="button"
+          onClick={loadDemoData}
+          className="w-full py-2 rounded-lg border border-brand-300 text-brand-600 text-sm font-medium active:scale-95 hover:bg-brand-50 transition-colors"
+        >
+          Load demo data
+        </button>
+
         {confirmReset ? (
           <div className="text-center space-y-3">
             <p className="text-sm font-medium text-red-600">This will erase all students and scores. Are you sure?</p>

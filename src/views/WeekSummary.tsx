@@ -1,4 +1,6 @@
+import { Printer, Download } from 'lucide-react';
 import type { DailyScores, Student, WeeklyExtras } from '../types';
+import type { ClassYear } from '../auth/types';
 import { addWeeks, formatShort, weekdayDates, WEEKDAY_LABELS } from '../lib/dates';
 import { dayTotal, weekTotal, getWeeklyExtra, setWeeklyExtra, totalEarned, balanceAsOf } from '../lib/scoring';
 
@@ -9,6 +11,7 @@ export function WeekSummary({
   setWeeklyExtras,
   weekStartIso,
   setWeekStartIso,
+  classYear,
 }: {
   students: Student[];
   daily: DailyScores;
@@ -16,8 +19,36 @@ export function WeekSummary({
   setWeeklyExtras: (next: WeeklyExtras) => void;
   weekStartIso: string;
   setWeekStartIso: (week: string) => void;
+  classYear: ClassYear;
 }) {
   const days = weekdayDates(weekStartIso);
+
+  function buildCsv(): string {
+    const header = ['Name', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Week Total', 'Spelling Star', 'Spelling Bonus', 'Total Earned', 'Stars Used', 'Balance'];
+    const rows = students.map(student => {
+      const extra = getWeeklyExtra(weeklyExtras, student.id, weekStartIso);
+      const wt = weekTotal(daily, student.id, weekStartIso);
+      const earned = totalEarned(wt, extra);
+      const balance = balanceAsOf(daily, weeklyExtras, student.id, weekStartIso) + (student.openingBalance ?? 0);
+      return [
+        `"${student.name}"`,
+        ...days.map(d => dayTotal(daily, student.id, d)),
+        wt, extra.spellingStar, extra.spellingBonus, earned, extra.starsUsed, balance,
+      ];
+    });
+    return [header, ...rows].map(row => row.join(',')).join('\n');
+  }
+
+  function downloadCsv() {
+    const csv = buildCsv();
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `class${classYear}-week-${weekStartIso}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <div className="px-2 pt-4 pb-24">
@@ -25,7 +56,7 @@ export function WeekSummary({
         <button
           type="button"
           onClick={() => setWeekStartIso(addWeeks(weekStartIso, -1))}
-          className="h-10 w-10 rounded-lg bg-gray-100 text-gray-700 font-bold active:scale-95"
+          className="h-10 w-10 rounded-lg bg-gray-100 text-gray-700 font-bold active:scale-95 no-print"
         >
           ‹
         </button>
@@ -38,9 +69,28 @@ export function WeekSummary({
         <button
           type="button"
           onClick={() => setWeekStartIso(addWeeks(weekStartIso, 1))}
-          className="h-10 w-10 rounded-lg bg-gray-100 text-gray-700 font-bold active:scale-95"
+          className="h-10 w-10 rounded-lg bg-gray-100 text-gray-700 font-bold active:scale-95 no-print"
         >
           ›
+        </button>
+      </div>
+
+      <div className="flex gap-2 justify-end max-w-lg mx-auto px-2 mb-3 no-print">
+        <button
+          type="button"
+          onClick={downloadCsv}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 text-xs font-medium hover:bg-gray-50 active:scale-95 transition-colors"
+        >
+          <Download size={13} />
+          CSV
+        </button>
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 text-xs font-medium hover:bg-gray-50 active:scale-95 transition-colors"
+        >
+          <Printer size={13} />
+          Print
         </button>
       </div>
 
@@ -51,96 +101,102 @@ export function WeekSummary({
       )}
 
       {students.length > 0 && (
-        <div className="overflow-x-auto border border-gray-200 rounded-xl">
-          <table className="border-collapse text-sm min-w-full">
-            <thead>
-              <tr className="bg-gray-50 text-gray-600">
-                <th className="sticky left-0 bg-gray-50 z-10 px-3 py-2 text-left font-medium border-b border-gray-200">
-                  Name
-                </th>
-                {WEEKDAY_LABELS.map((label) => (
-                  <th key={label} className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">
-                    {label.slice(0, 3)}
+        <>
+          <div className="print-only mb-4 px-2">
+            <p className="font-bold text-lg">BASICS International — Class {classYear}</p>
+            <p className="text-sm text-gray-600">Week of {formatShort(weekStartIso)} ({formatShort(days[0])} – {formatShort(days[4])})</p>
+          </div>
+          <div className="overflow-x-auto border border-gray-200 rounded-xl">
+            <table className="border-collapse text-sm min-w-full">
+              <thead>
+                <tr className="bg-gray-50 text-gray-600">
+                  <th className="sticky left-0 bg-gray-50 z-10 px-3 py-2 text-left font-medium border-b border-gray-200">
+                    Name
                   </th>
-                ))}
-                <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Week Total</th>
-                <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Spelling Star</th>
-                <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Spelling Bonus</th>
-                <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Total Earned</th>
-                <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Stars Used</th>
-                <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Balance</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((student) => {
-                const extra = getWeeklyExtra(weeklyExtras, student.id, weekStartIso);
-                const wt = weekTotal(daily, student.id, weekStartIso);
-                const earned = totalEarned(wt, extra);
-                const balance = balanceAsOf(daily, weeklyExtras, student.id, weekStartIso) + (student.openingBalance ?? 0);
+                  {WEEKDAY_LABELS.map((label) => (
+                    <th key={label} className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">
+                      {label.slice(0, 3)}
+                    </th>
+                  ))}
+                  <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Week Total</th>
+                  <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Spelling Star</th>
+                  <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Spelling Bonus</th>
+                  <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Total Earned</th>
+                  <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Stars Used</th>
+                  <th className="px-3 py-2 font-medium border-b border-gray-200 whitespace-nowrap">Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map((student) => {
+                  const extra = getWeeklyExtra(weeklyExtras, student.id, weekStartIso);
+                  const wt = weekTotal(daily, student.id, weekStartIso);
+                  const earned = totalEarned(wt, extra);
+                  const balance = balanceAsOf(daily, weeklyExtras, student.id, weekStartIso) + (student.openingBalance ?? 0);
 
-                return (
-                  <tr key={student.id} className="border-b border-gray-100">
-                    <td className="sticky left-0 bg-white z-10 px-3 py-2 font-medium text-gray-900 whitespace-nowrap">
-                      {student.name}
-                    </td>
-                    {days.map((date) => (
-                      <td key={date} className="px-3 py-2 text-center text-gray-700">
-                        {dayTotal(daily, student.id, date)}
+                  return (
+                    <tr key={student.id} className="border-b border-gray-100">
+                      <td className="sticky left-0 bg-white z-10 px-3 py-2 font-medium text-gray-900 whitespace-nowrap">
+                        {student.name}
                       </td>
-                    ))}
-                    <td className="px-3 py-2 text-center font-semibold text-gray-900">{wt}</td>
-                    <td className="px-2 py-2">
-                      <input
-                        type="number"
-                        value={extra.spellingStar}
-                        onChange={(e) =>
-                          setWeeklyExtras(
-                            setWeeklyExtra(weeklyExtras, student.id, weekStartIso, {
-                              spellingStar: Number(e.target.value),
-                            }),
-                          )
-                        }
-                        className="w-16 border border-gray-200 rounded px-1.5 py-1 text-center"
-                      />
-                    </td>
-                    <td className="px-2 py-2">
-                      <input
-                        type="number"
-                        value={extra.spellingBonus}
-                        onChange={(e) =>
-                          setWeeklyExtras(
-                            setWeeklyExtra(weeklyExtras, student.id, weekStartIso, {
-                              spellingBonus: Number(e.target.value),
-                            }),
-                          )
-                        }
-                        className="w-16 border border-gray-200 rounded px-1.5 py-1 text-center"
-                      />
-                    </td>
-                    <td className="px-3 py-2 text-center font-semibold text-gray-900">{earned}</td>
-                    <td className="px-2 py-2">
-                      <input
-                        type="number"
-                        value={extra.starsUsed}
-                        onChange={(e) =>
-                          setWeeklyExtras(
-                            setWeeklyExtra(weeklyExtras, student.id, weekStartIso, {
-                              starsUsed: Number(e.target.value),
-                            }),
-                          )
-                        }
-                        className="w-16 border border-gray-200 rounded px-1.5 py-1 text-center"
-                      />
-                    </td>
-                    <td className="px-3 py-2 text-center font-bold text-brand-700">{balance}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      {days.map((date) => (
+                        <td key={date} className="px-3 py-2 text-center text-gray-700">
+                          {dayTotal(daily, student.id, date)}
+                        </td>
+                      ))}
+                      <td className="px-3 py-2 text-center font-semibold text-gray-900">{wt}</td>
+                      <td className="px-2 py-2">
+                        <input
+                          type="number"
+                          value={extra.spellingStar}
+                          onChange={(e) =>
+                            setWeeklyExtras(
+                              setWeeklyExtra(weeklyExtras, student.id, weekStartIso, {
+                                spellingStar: Number(e.target.value),
+                              }),
+                            )
+                          }
+                          className="w-16 border border-gray-200 rounded px-1.5 py-1 text-center"
+                        />
+                      </td>
+                      <td className="px-2 py-2">
+                        <input
+                          type="number"
+                          value={extra.spellingBonus}
+                          onChange={(e) =>
+                            setWeeklyExtras(
+                              setWeeklyExtra(weeklyExtras, student.id, weekStartIso, {
+                                spellingBonus: Number(e.target.value),
+                              }),
+                            )
+                          }
+                          className="w-16 border border-gray-200 rounded px-1.5 py-1 text-center"
+                        />
+                      </td>
+                      <td className="px-3 py-2 text-center font-semibold text-gray-900">{earned}</td>
+                      <td className="px-2 py-2">
+                        <input
+                          type="number"
+                          value={extra.starsUsed}
+                          onChange={(e) =>
+                            setWeeklyExtras(
+                              setWeeklyExtra(weeklyExtras, student.id, weekStartIso, {
+                                starsUsed: Number(e.target.value),
+                              }),
+                            )
+                          }
+                          className="w-16 border border-gray-200 rounded px-1.5 py-1 text-center"
+                        />
+                      </td>
+                      <td className="px-3 py-2 text-center font-bold text-brand-700">{balance}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
-      <p className="text-xs text-gray-400 mt-3 text-center max-w-lg mx-auto">
+      <p className="text-xs text-gray-400 mt-3 text-center max-w-lg mx-auto no-print">
         Scroll sideways to see all columns. Balance carries forward automatically week to week.
       </p>
     </div>

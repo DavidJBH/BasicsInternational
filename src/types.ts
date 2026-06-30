@@ -38,6 +38,7 @@ export const SCORE_OPTIONS: Record<CategoryMode, { value: Score; label: string }
 export interface Student {
   id: string;
   name: string;
+  classYear: 4 | 5 | 6;
   openingBalance?: number;
 }
 
